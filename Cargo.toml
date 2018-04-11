@@ -1,0 +1,26 @@
+[package]
+name = "asset"
+version = "0.1.0"
+authors = ["Zakarum <scareaangel@gmail.com>"]
+description = "Asset management with support for gfx-hal"
+keywords = ["asset", "gfx", "gfx-hal", "gfx-render", "gfx-mesh", "graphics"]
+readme = "README.md"
+license = "MIT/Apache-2.0"
+repository = "https://github.com/omni-viral/asset.git"
+documentation = "https://docs.rs/crate/asset/0.1.0/asset"
+
+[features]
+default = []
+
+obj-mesh = ["gfx-hal", "gfx-render", "gfx-mesh", "obj"]
+image = ["gfx-hal", "gfx-render", "png"]
+
+all = ["image", "obj-mesh", "futures"]
+
+[dependencies]
+futures = { version = "0.2", optional = true }
+gfx-hal = { git = "https://github.com/gfx-rs/gfx", rev = "efa0822a", optional = true }
+gfx-mesh = { git = "https://github.com/omni-viral/gfx-mesh", rev = "3ee315b8", optional = true }
+gfx-render = { git = "https://github.com/gfx-rs/gfx-render", rev = "fef312d7", optional = true }
+obj = { version = "0.8", optional = true }
+png = { version = "0.11", optional = true }
