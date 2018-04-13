@@ -75,13 +75,13 @@ where
 {
     type Error = PngError;
 
-    fn load<R>(&mut self, format: PngFormat, read: R) -> Result<Texture<B>, PngError>
+    fn load<R>(&mut self, format: PngFormat, reader: R) -> Result<Texture<B>, PngError>
     where
         R: Read,
     {
         let PngFormat = format;
 
-        let (info, mut reader) = png::Decoder::new(read).read_info().map_err(PngError::Png)?;
+        let (info, mut reader) = png::Decoder::new(reader).read_info().map_err(PngError::Png)?;
 
         let (color_type, bit_depth) = reader.output_color_type();
 

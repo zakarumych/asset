@@ -11,6 +11,8 @@ use hal::memory::{Pod, Properties, cast_slice};
 
 use render::{Factory, Image, Error};
 
+use asset::Asset;
+
 pub struct Texture<B: Backend> {
     kind: Kind,
     format: Format,
@@ -36,6 +38,15 @@ where
     pub fn kind(&self) -> Kind {
         self.kind
     }
+}
+
+impl<B> Asset for Texture<B>
+where
+    B: Backend,
+{
+    type Loader = Factory<B>;
+
+    const KIND: &'static str = "Texture";
 }
 
 pub struct TextureBuilder<'a> {

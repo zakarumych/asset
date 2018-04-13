@@ -61,14 +61,14 @@ impl FsStore {
     }
 }
 
-impl<P> Store<P> for FsStore
-where
-    P: AsRef<Path>,
+impl Store<Path> for FsStore
 {
     type Error = io::Error;
     type Reader = File;
 
-    fn fetch(&mut self, id: P) -> Result<File, io::Error> {
+    const KIND: &'static str = "Filesystem";
+
+    fn fetch(&mut self, id: &Path) -> Result<File, io::Error> {
         self.find(id)
     }
 }

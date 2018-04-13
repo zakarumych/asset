@@ -17,7 +17,7 @@ pub trait AssetLoader<A, F> {
     type Error;
 
     /// Load asset from raw data.
-    fn load<R>(&mut self, format: F, read: R) -> Result<A, Self::Error>
+    fn load<R>(&mut self, format: F, reader: R) -> Result<A, Self::Error>
     where
         R: Read;
 }
@@ -29,4 +29,19 @@ pub trait AsyncAssetLoader<A, F, R>: AssetLoader<A, F> + Sized {
     fn load_async(self, format: F, reader: R) -> Self::Loader;
 }
 
+/// Asset type specifies loader type.
+pub trait Asset: Sized {
+    /// Loader type for the asset.
+    type Loader;
 
+    const KIND: &'static str;
+
+    /// Load asset using loader.
+    fn load<F, R>(loader: &mut Self::Loader, format: F, reader: R) -> Result<Self, <Self::Loader as AssetLoader<Self, F>>::Error>
+    where
+        R: Read,
+        Self::Loader: AssetLoader<Self, F>,
+    {
+        loader.load(format, reader)
+    }
+}

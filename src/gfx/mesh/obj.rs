@@ -65,13 +65,13 @@ where
 {
     type Error = ObjError;
 
-    fn load<R>(&mut self, format: ObjFormat, read: R) -> Result<Mesh<B>, ObjError>
+    fn load<R>(&mut self, format: ObjFormat, reader: R) -> Result<Mesh<B>, ObjError>
     where
         R: Read,
     {
         let ObjFormat = format;
 
-        let obj: Obj<SimplePolygon> = Obj::load_buf(&mut BufReader::new(read)).map_err(ObjError::Io)?;
+        let obj: Obj<SimplePolygon> = Obj::load_buf(&mut BufReader::new(reader)).map_err(ObjError::Io)?;
         let mut indices = Vec::new();
         let positions = obj.position.iter().cloned().map(Position).collect::<Vec<_>>();
         let mut texcoords = None;
@@ -84,6 +84,7 @@ where
                 texcoords.extend((len .. index + 1).map(|_| value));
                 texcoords[index] = value;
             };
+
             let mut normal = |index, value| {
                 let normals = normals.get_or_insert_with(|| Vec::new());
                 let len = normals.len();

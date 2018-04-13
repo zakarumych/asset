@@ -15,14 +15,19 @@ pub use self::async::{AsyncStore, AsyncStoreWrapper};
 /// # Parameters
 /// `I` - identifier type the `Store` uses to identify assets.
 /// 
-pub trait Store<I> {
+pub trait Store<I: ?Sized> {
     /// Possible error type.
     type Error;
 
     /// Raw data reader.
     type Reader: Read;
 
+    /// Get store kind.
+    const KIND: &'static str;
+
     /// Fetch asset data from the store.
     /// Returns reader object that yields raw data of the asset.
-    fn fetch(&mut self, id: I) -> Result<Self::Reader, Self::Error>;
+    fn fetch(&mut self, id: &I) -> Result<Self::Reader, Self::Error>;
 }
+
+
