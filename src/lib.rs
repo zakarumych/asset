@@ -21,3 +21,5 @@ extern crate futures;
 pub mod gfx;
 
 pub mod asset;
+pub mod store;
+

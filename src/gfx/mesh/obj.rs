@@ -1,19 +1,31 @@
 
 use std::error::Error;
 use std::fmt::{Display, Formatter, Result as FmtResult};
-use std::io::{BufReader, Error as IoError, Read};
+use std::io::{self, BufReader, Read};
 
 use hal::Backend;
 use mesh::{Mesh, MeshBuilder, Position, Normal, TexCoord};
 use render::{Factory, Error as RenderError};
 use obj::{Obj, SimplePolygon};
 
-use asset::Asset;
+use asset::AssetLoader;
 
 #[derive(Debug)]
 pub enum ObjError {
-    Io(IoError),
+    Io(io::Error),
     Render(RenderError),
+}
+
+impl From<io::Error> for ObjError {
+    fn from(err: io::Error) -> ObjError {
+        ObjError::Io(err)
+    }
+}
+
+impl From<RenderError> for ObjError {
+    fn from(err: RenderError) -> ObjError {
+        ObjError::Render(err)
+    }
 }
 
 impl Display for ObjError {
@@ -47,16 +59,18 @@ impl Error for ObjError {
 
 pub struct ObjFormat;
 
-impl<B> Asset<ObjFormat, Factory<B>> for Mesh<B>
+impl<B> AssetLoader<Mesh<B>, ObjFormat> for Factory<B>
 where
     B: Backend,
 {
     type Error = ObjError;
 
-    fn load<R>(read: R, _format: ObjFormat, factory: &mut Factory<B>) -> Result<Self, ObjError>
+    fn load<R>(&mut self, format: ObjFormat, read: R) -> Result<Mesh<B>, ObjError>
     where
         R: Read,
     {
+        let ObjFormat = format;
+
         let obj: Obj<SimplePolygon> = Obj::load_buf(&mut BufReader::new(read)).map_err(ObjError::Io)?;
         let mut indices = Vec::new();
         let positions = obj.position.iter().cloned().map(Position).collect::<Vec<_>>();
@@ -127,7 +141,7 @@ where
             builder.add_vertices(texcoords);
         };
 
-        builder.build(factory).map_err(ObjError::Render)
+        builder.build(self).map_err(ObjError::Render)
     }
 }
 

@@ -1,7 +1,7 @@
 
 use std::error::Error;
 use std::fmt::{Display, Formatter, Result as FmtResult};
-use std::io::Read;
+use std::io::{self, Read};
 
 use hal::Backend;
 use hal::format::Format;
@@ -11,13 +11,31 @@ use png;
 
 use render::{Factory, Error as RenderError};
 
-use asset::Asset;
+use asset::AssetLoader;
 use gfx::texture::Texture;
 
 #[derive(Debug)]
 pub enum PngError {
     Png(png::DecodingError),
     Render(RenderError),
+}
+
+impl From<io::Error> for PngError {
+    fn from(err: io::Error) -> PngError {
+        PngError::Png(err.into())
+    }
+}
+
+impl From<RenderError> for PngError {
+    fn from(err: RenderError) -> PngError {
+        PngError::Render(err.into())
+    }
+}
+
+impl From<png::DecodingError> for PngError {
+    fn from(err: png::DecodingError) -> PngError {
+        PngError::Png(err)
+    }
 }
 
 impl Display for PngError {
@@ -51,16 +69,18 @@ impl Error for PngError {
 
 pub struct PngFormat;
 
-impl<B> Asset<PngFormat, Factory<B>> for Texture<B>
+impl<B> AssetLoader<Texture<B>, PngFormat> for Factory<B>
 where
     B: Backend,
 {
     type Error = PngError;
 
-    fn load<R>(read: R, _format: PngFormat, factory: &mut Factory<B>) -> Result<Self, PngError>
+    fn load<R>(&mut self, format: PngFormat, read: R) -> Result<Texture<B>, PngError>
     where
         R: Read,
     {
+        let PngFormat = format;
+
         let (info, mut reader) = png::Decoder::new(read).read_info().map_err(PngError::Png)?;
 
         let (color_type, bit_depth) = reader.output_color_type();
@@ -81,7 +101,7 @@ where
                 (line_bytes / pixel_bytes) as u32
             })
             .with_data(data)
-            .build(factory)
+            .build(self)
             .map_err(PngError::Render)
     }
 }
