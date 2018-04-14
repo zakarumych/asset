@@ -12,11 +12,10 @@ documentation = "https://docs.rs/crate/asset/0.1.0/asset"
 [features]
 default = []
 
-mesh-obj = ["gfx-hal", "gfx-render", "gfx-mesh", "obj"]
-mesh = ["mesh-obj"]
-texture-png = ["gfx-hal", "gfx-render", "png"]
-texture = ["texture-png"]
+mesh = ["gfx-hal", "gfx-render", "gfx-mesh"]
+texture = ["gfx-hal", "gfx-render"]
 fs = []
+sprite = []
 
 [dependencies]
 futures = { version = "0.2", optional = true }

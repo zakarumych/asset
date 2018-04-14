@@ -5,7 +5,7 @@ use hal::Backend;
 use render::Factory;
 
 // pub use mesh::{Mesh, MeshBuilder}; // `cargo doc` panics because of this line: https://github.com/rust-lang/rust/issues/49883
-use mesh::Mesh;
+use gfx_mesh::Mesh;
 
 use asset::Asset;
 

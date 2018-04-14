@@ -8,7 +8,7 @@ extern crate futures;
 extern crate gfx_hal as hal;
 
 #[cfg(feature="gfx-mesh")]
-extern crate gfx_mesh as mesh;
+extern crate gfx_mesh;
 
 #[cfg(feature="gfx-render")]
 extern crate gfx_render as render;
@@ -26,14 +26,19 @@ extern crate ron;
 #[macro_use]
 extern crate serde;
 
-#[cfg(feature="gfx-hal")]
-pub mod gfx;
-
 pub mod asset;
 pub mod handle;
 pub mod manager;
-pub mod sprite;
 pub mod store;
+
+#[cfg(feature="mesh")]
+pub mod mesh;
+
+#[cfg(feature="sprite")]
+pub mod sprite;
+
+#[cfg(any(feature="texture"))]
+pub mod texture;
 
 #[cfg(test)]
 mod tests;

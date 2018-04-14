@@ -4,7 +4,7 @@ use std::fmt::{Display, Formatter, Result as FmtResult};
 use std::io::{self, BufReader, Read};
 
 use hal::Backend;
-use mesh::{Mesh, MeshBuilder, Position, Normal, TexCoord};
+use gfx_mesh::{Mesh, MeshBuilder, Position, Normal, TexCoord};
 use render::{Factory, Error as RenderError};
 use obj::{Obj, SimplePolygon};
 

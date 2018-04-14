@@ -12,7 +12,7 @@ use png;
 use render::{Factory, Error as RenderError};
 
 use asset::AssetLoader;
-use gfx::texture::Texture;
+use texture::Texture;
 
 #[derive(Debug)]
 pub enum PngError {

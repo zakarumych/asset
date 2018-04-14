@@ -4,12 +4,29 @@ use std::hash::Hash;
 use std::ops::Range;
 use std::time::Duration;
 
+#[cfg(feature="serde")]
+use serde::{Serialize, de::DeserializeOwned};
+
+#[cfg(feature="serde")]
+use asset::{Asset, SerdeLoader};
+
 use sprite::{Rect, SpriteSheet};
 
 #[cfg_attr(feature="serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature="serde", serde(bound(serialize = "I: Serialize + Eq + Hash", deserialize = "I: DeserializeOwned + Eq + Hash")))]
 pub struct AnimationSet<I> {
     /// Maps name to frames range.
     animations: HashMap<I, Range<u32>>,
+}
+
+#[cfg(feature="serde")]
+impl<I> Asset for AnimationSet<I>
+where
+    I: DeserializeOwned + Eq + Hash,
+{
+    type Loader = SerdeLoader;
+
+    const KIND: &'static str = "AnimationSet";
 }
 
 impl<I> AnimationSet<I>
@@ -49,17 +66,29 @@ struct Animation<I> {
     next: Option<(I, Option<u64>)>,
 }
 
+#[cfg_attr(feature="serde", derive(Serialize, Deserialize))]
 enum Current<I> {
     Animated(Animation<I>),
     Still(u32),
 }
 
 #[cfg_attr(feature="serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature="serde", serde(bound(serialize = "I: Serialize + Eq + Hash", deserialize = "I: DeserializeOwned + Eq + Hash")))]
 pub struct AnimationController<I> {
     set: AnimationSet<I>,
     layout: SpriteSheet,
     frame_duration: u64,
     current: Current<I>,
+}
+
+#[cfg(feature="serde")]
+impl<I> Asset for AnimationController<I>
+where
+    I: DeserializeOwned + Eq + Hash,
+{
+    type Loader = SerdeLoader;
+
+    const KIND: &'static str = "AnimationController";
 }
 
 impl<I> AnimationController<I>
