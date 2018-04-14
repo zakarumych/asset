@@ -14,8 +14,8 @@ default = []
 
 mesh-obj = ["gfx-hal", "gfx-render", "gfx-mesh", "obj"]
 mesh = ["mesh-obj"]
-image-png = ["gfx-hal", "gfx-render", "png"]
-image = ["image-png"]
+texture-png = ["gfx-hal", "gfx-render", "png"]
+texture = ["texture-png"]
 fs = []
 
 [dependencies]

@@ -32,8 +32,8 @@ pub mod gfx;
 pub mod asset;
 pub mod handle;
 pub mod manager;
+pub mod sprite;
 pub mod store;
-
 
 #[cfg(test)]
 mod tests;
