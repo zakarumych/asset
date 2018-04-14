@@ -4,12 +4,14 @@ pub mod png;
 
 use std::borrow::Cow;
 
+use failure::Error;
+
 use hal::Backend;
 use hal::format::{Aspects, Format};
 use hal::image::{Tiling, Kind, Usage, Access, StorageFlags, Layout, SubresourceLayers, Offset};
 use hal::memory::{Pod, Properties, cast_slice};
 
-use render::{Factory, Image, Error};
+use render::{Factory, Image};
 
 use asset::Asset;
 

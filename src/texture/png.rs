@@ -1,71 +1,17 @@
 
-use std::error::Error;
-use std::fmt::{Display, Formatter, Result as FmtResult};
-use std::io::{self, Read};
+use std::io::Read;
 
+use failure::Error;
 use hal::Backend;
 use hal::format::Format;
 use hal::image::Kind;
 
 use png;
 
-use render::{Factory, Error as RenderError};
+use render::Factory;
 
 use asset::AssetLoader;
 use texture::Texture;
-
-#[derive(Debug)]
-pub enum PngError {
-    Png(png::DecodingError),
-    Render(RenderError),
-}
-
-impl From<io::Error> for PngError {
-    fn from(err: io::Error) -> PngError {
-        PngError::Png(err.into())
-    }
-}
-
-impl From<RenderError> for PngError {
-    fn from(err: RenderError) -> PngError {
-        PngError::Render(err.into())
-    }
-}
-
-impl From<png::DecodingError> for PngError {
-    fn from(err: png::DecodingError) -> PngError {
-        PngError::Png(err)
-    }
-}
-
-impl Display for PngError {
-    fn fmt(&self, fmt: &mut Formatter) -> FmtResult {
-        match *self {
-            PngError::Png(ref err) => {
-                write!(fmt, "Png error: {}", err)
-            }
-            PngError::Render(ref err) => {
-                write!(fmt, "Render error: {}", err)
-            }
-        }
-    }
-}
-
-impl Error for PngError {
-    fn description(&self) -> &str {
-        match *self {
-            PngError::Png(ref err) => err.description(),
-            PngError::Render(ref err) => err.description(),
-        }
-    }
-
-    fn cause(&self) -> Option<&Error> {
-        match *self {
-            PngError::Png(ref err) => Some(err),
-            PngError::Render(ref err) => Some(err),
-        }
-    }
-}
 
 pub struct PngFormat;
 
@@ -73,22 +19,22 @@ impl<B> AssetLoader<Texture<B>, PngFormat> for Factory<B>
 where
     B: Backend,
 {
-    type Error = PngError;
+    type Error = Error;
 
-    fn load<R>(&mut self, format: PngFormat, reader: R) -> Result<Texture<B>, PngError>
+    fn load<R>(&mut self, format: PngFormat, reader: R) -> Result<Texture<B>, Error>
     where
         R: Read,
     {
         let PngFormat = format;
 
-        let (info, mut reader) = png::Decoder::new(reader).read_info().map_err(PngError::Png)?;
+        let (info, mut reader) = png::Decoder::new(reader).read_info()?;
 
         let (color_type, bit_depth) = reader.output_color_type();
 
         let data = {
             let mut data = Vec::new();
             data.resize(reader.output_buffer_size(), 0);
-            reader.next_frame(&mut data).map_err(PngError::Png)?;
+            reader.next_frame(&mut data)?;
             data
         };
 
@@ -102,7 +48,6 @@ where
             })
             .with_data(data)
             .build(self)
-            .map_err(PngError::Render)
     }
 }
 

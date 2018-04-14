@@ -1,61 +1,13 @@
 
-use std::error::Error;
-use std::fmt::{Display, Formatter, Result as FmtResult};
-use std::io::{self, BufReader, Read};
+use std::io::{BufReader, Read};
 
+use failure::Error;
 use hal::Backend;
 use gfx_mesh::{Mesh, MeshBuilder, Position, Normal, TexCoord};
-use render::{Factory, Error as RenderError};
+use render::Factory;
 use obj::{Obj, SimplePolygon};
 
 use asset::AssetLoader;
-
-#[derive(Debug)]
-pub enum ObjError {
-    Io(io::Error),
-    Render(RenderError),
-}
-
-impl From<io::Error> for ObjError {
-    fn from(err: io::Error) -> ObjError {
-        ObjError::Io(err)
-    }
-}
-
-impl From<RenderError> for ObjError {
-    fn from(err: RenderError) -> ObjError {
-        ObjError::Render(err)
-    }
-}
-
-impl Display for ObjError {
-    fn fmt(&self, fmt: &mut Formatter) -> FmtResult {
-        match *self {
-            ObjError::Io(ref err) => {
-                write!(fmt, "Io error: {}", err)
-            }
-            ObjError::Render(ref err) => {
-                write!(fmt, "Render error: {}", err)
-            }
-        }
-    }
-}
-
-impl Error for ObjError {
-    fn description(&self) -> &str {
-        match *self {
-            ObjError::Io(ref err) => err.description(),
-            ObjError::Render(ref err) => err.description(),
-        }
-    }
-
-    fn cause(&self) -> Option<&Error> {
-        match *self {
-            ObjError::Io(ref err) => Some(err),
-            ObjError::Render(ref err) => Some(err),
-        }
-    }
-}
 
 pub struct ObjFormat;
 
@@ -63,15 +15,15 @@ impl<B> AssetLoader<Mesh<B>, ObjFormat> for Factory<B>
 where
     B: Backend,
 {
-    type Error = ObjError;
+    type Error = Error;
 
-    fn load<R>(&mut self, format: ObjFormat, reader: R) -> Result<Mesh<B>, ObjError>
+    fn load<R>(&mut self, format: ObjFormat, reader: R) -> Result<Mesh<B>, Error>
     where
         R: Read,
     {
         let ObjFormat = format;
 
-        let obj: Obj<SimplePolygon> = Obj::load_buf(&mut BufReader::new(reader)).map_err(ObjError::Io)?;
+        let obj: Obj<SimplePolygon> = Obj::load_buf(&mut BufReader::new(reader))?;
         let mut indices = Vec::new();
         let positions = obj.position.iter().cloned().map(Position).collect::<Vec<_>>();
         let mut texcoords = None;
@@ -142,7 +94,7 @@ where
             builder.add_vertices(texcoords);
         };
 
-        builder.build(self).map_err(ObjError::Render)
+        builder.build(self)
     }
 }
 
