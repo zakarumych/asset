@@ -74,5 +74,5 @@ fn pixel_bytes(color_type: png::ColorType, bit_depth: png::BitDepth) -> usize {
         png::BitDepth::Four => 4,
         png::BitDepth::Eight => 8,
         png::BitDepth::Sixteen => 16,
-    }
+    } / 8
 }

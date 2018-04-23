@@ -1,24 +1,29 @@
 
 #[cfg(feature="png")]
-pub mod png;
+mod png;
 
-use std::borrow::Cow;
+#[cfg(feature="png")]
+pub use self::png::*;
+
+use std::borrow::{Borrow, Cow};
 
 use failure::Error;
 
-use hal::Backend;
-use hal::format::{Aspects, Format};
-use hal::image::{Tiling, Kind, Usage, Access, StorageFlags, Layout, SubresourceLayers, Offset};
+use hal::{Backend, Device};
+use hal::format::{Aspects, Format, Swizzle};
+use hal::image::{Tiling, Kind, Usage, Access, StorageFlags, Layout, SubresourceLayers, SubresourceRange, Offset, ViewKind};
 use hal::memory::{Pod, Properties, cast_slice};
 
 use render::{Factory, Image};
 
 use asset::Asset;
 
+#[derive(Debug)]
 pub struct Texture<B: Backend> {
     kind: Kind,
     format: Format,
     image: Image<B>,
+    view: B::ImageView,
 }
 
 impl<B> Texture<B>
@@ -31,6 +36,10 @@ where
 
     pub fn image(&self) -> &Image<B> {
         &self.image
+    }
+
+    pub fn view(&self) -> &B::ImageView {
+        &self.view
     }
 
     pub fn format(&self) -> Format {
@@ -140,6 +149,22 @@ impl<'a> TextureBuilder<'a> {
             StorageFlags::empty(),
         )?;
 
+        let view = factory.create_image_view(
+            image.borrow(),
+            match self.kind {
+                Kind::D1(_, _) => ViewKind::D1,
+                Kind::D2(_, _, _, _) => ViewKind::D2,
+                Kind::D3(_, _, _) => ViewKind::D3,
+            },
+            self.format,
+            Swizzle::NO,
+            SubresourceRange {
+                aspects: Aspects::COLOR,
+                levels: 0 .. 1,
+                layers: 0 .. 1,
+            }
+        )?;
+
         factory.upload_image(
             &mut image,
             Layout::ShaderReadOnlyOptimal,
@@ -160,6 +185,7 @@ impl<'a> TextureBuilder<'a> {
             kind: self.kind,
             format: self.format,
             image,
+            view,
         })
     }
 }

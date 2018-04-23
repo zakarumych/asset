@@ -2,7 +2,13 @@
 mod async;
 
 #[cfg(feature="fs")]
-pub mod fs;
+mod fs;
+
+#[cfg(feature="futures")]
+pub use self::async::{AsyncStore, AsyncStoreWrapper};
+
+#[cfg(feature="fs")]
+pub use self::fs::FsStore;
 
 use std::io::Read;
 

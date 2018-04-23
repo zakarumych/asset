@@ -26,19 +26,34 @@ extern crate ron;
 #[macro_use]
 extern crate serde;
 
-pub mod asset;
-pub mod handle;
-pub mod manager;
-pub mod store;
 
 #[cfg(feature="mesh")]
-pub mod mesh;
+mod mesh;
 
 #[cfg(feature="sprite")]
-pub mod sprite;
+mod sprite;
 
 #[cfg(any(feature="texture"))]
-pub mod texture;
+mod texture;
+
+mod asset;
+mod handle;
+mod manager;
+mod store;
+
+pub use asset::*;
+pub use handle::*;
+pub use manager::*;
+pub use store::*;
+
+#[cfg(feature="mesh")]
+pub use mesh::*;
+
+#[cfg(feature="sprite")]
+pub use sprite::*;
+
+#[cfg(any(feature="texture"))]
+pub use texture::*;
 
 #[cfg(test)]
 mod tests;
