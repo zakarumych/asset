@@ -22,7 +22,7 @@ pub struct AnimationSet<I> {
 #[cfg(feature="serde")]
 impl<I> Asset for AnimationSet<I>
 where
-    I: DeserializeOwned + Eq + Hash,
+    I: DeserializeOwned + Eq + Hash + Send + Sync + 'static,
 {
     type Loader = SerdeLoader;
 
@@ -84,7 +84,7 @@ pub struct AnimationController<I> {
 #[cfg(feature="serde")]
 impl<I> Asset for AnimationController<I>
 where
-    I: DeserializeOwned + Eq + Hash,
+    I: DeserializeOwned + Eq + Hash + Send + Sync + 'static,
 {
     type Loader = SerdeLoader;
 

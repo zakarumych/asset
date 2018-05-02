@@ -36,7 +36,7 @@ pub trait AsyncAssetLoader<A, F, R>: AssetLoader<A, F> + Sized {
 }
 
 /// Asset type specifies loader type.
-pub trait Asset: Sized {
+pub trait Asset: Send + Sync + Sized + 'static {
     /// Loader type for the asset.
     type Loader;
 
@@ -86,6 +86,7 @@ where
 #[cfg(all(feature="ron", feature="serde"))]
 pub struct RonFormat;
 
+#[cfg(all(feature="ron", feature="serde"))]
 impl SerdeFormat for RonFormat {
     type Error = ron::de::Error;
 

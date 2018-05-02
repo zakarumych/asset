@@ -82,9 +82,24 @@ fn asset_loader() {
 #[cfg(feature="fs")]
 #[test]
 fn filesystem_store() {
-    use store::fs::FsStore;
-    use store::Store;
-    let mut fs = FsStore::new();
-    fs.add(env!("CARGO_MANIFEST_DIR"));
-    assert_eq!(String::from(LICENSE_MIT), fs.fetch("LICENSE-MIT".as_ref()).and_then(|r| StringLoader.load((), r)).unwrap());
+    use store::{FsStore, Store};
+    let mut fs = FsStore::new().with_path(env!("CARGO_MANIFEST_DIR"));
+    assert_eq!(String::from(LICENSE_MIT), fs.fetch("LICENSE-MIT").and_then(|r| StringLoader.load((), r)).unwrap());
+}
+
+
+#[cfg(feature="fs")]
+#[test]
+fn asset_manager() {
+    use store::FsStore;
+    use AssetManager;
+
+    let mut manager = AssetManager::new()
+        .with_store(FsStore::new().with_path(env!("CARGO_MANIFEST_DIR")))
+        .with_loader(StringLoader);
+
+    assert_eq!(&String::from(LICENSE_MIT), &*manager.load::<String, _>("LICENSE-MIT", ()).unwrap());
+
+    fn send_sync_static<T: Send + Sync + 'static>(_: &T) {}
+    send_sync_static(&manager);
 }

@@ -8,9 +8,9 @@ pub mod anim;
 #[cfg_attr(feature="serde", derive(Serialize, Deserialize))]
 pub struct SpriteSheet {
     /// Columns count of the grid. Number of frames in one row.
-    columns: u32,
+    pub columns: u32,
     /// Rows count of the grid. Number of frames in one column.
-    rows: u32,
+    pub rows: u32,
 }
 
 /// Rectangular to get sprite from texture.

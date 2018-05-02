@@ -22,16 +22,31 @@ impl FsStore {
     }
 
     /// Add new search directory.
-    pub fn add<P>(&mut self, path: P)
+    pub fn add_path<P>(&mut self, path: P)
     where
         P: Into<PathBuf>,
     {
         self.roots.push(path.into());
     }
 
+    /// Add new search directory.
+    pub fn with_path<P>(mut self, path: P) -> Self
+    where
+        P: Into<PathBuf>,
+    {
+        self.add_path(path);
+        self
+    }
+
     /// Set if store should ignore extensions of files.
-    pub fn ignore_ext(&mut self, ignore: bool) {
+    pub fn set_ignore_ext(&mut self, ignore: bool) {
         self.ignore_ext = ignore;
+    }
+
+    /// Set if store should ignore extensions of files.
+    pub fn with_ignore_ext(mut self, ignore: bool) -> Self {
+        self.set_ignore_ext(ignore);
+        self
     }
 
     /// Find file by name.
@@ -61,14 +76,16 @@ impl FsStore {
     }
 }
 
-impl Store<Path> for FsStore
+impl<P> Store<P> for FsStore
+where
+    P: AsRef<Path> + ?Sized,
 {
     type Error = io::Error;
     type Reader = File;
 
     const KIND: &'static str = "Filesystem";
 
-    fn fetch(&mut self, id: &Path) -> Result<File, io::Error> {
+    fn fetch(&mut self, id: &P) -> Result<File, io::Error> {
         self.find(id)
     }
 }
