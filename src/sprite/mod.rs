@@ -5,6 +5,7 @@ pub mod anim;
 /// They are primarily used in for sprite animations
 /// where individual sprites represent frames of animations. Typically row per animation.
 /// The second common use is for tile sets where individual sprites represent variety of tiles in set.
+#[derive(Clone, Copy, Debug, Hash, PartialEq, Eq)]
 #[cfg_attr(feature="serde", derive(Serialize, Deserialize))]
 pub struct SpriteSheet {
     /// Columns count of the grid. Number of frames in one row.
@@ -15,6 +16,7 @@ pub struct SpriteSheet {
 
 /// Rectangular to get sprite from texture.
 #[repr(C)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Rect {
     pub x: f32,
     pub y: f32,

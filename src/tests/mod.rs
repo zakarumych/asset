@@ -92,9 +92,9 @@ fn filesystem_store() {
 #[test]
 fn asset_manager() {
     use store::FsStore;
-    use AssetManager;
+    use Assets;
 
-    let mut manager = AssetManager::new()
+    let mut manager = Assets::new()
         .with_store(FsStore::new().with_path(env!("CARGO_MANIFEST_DIR")))
         .with_loader(StringLoader);
 

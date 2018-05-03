@@ -1,6 +1,5 @@
 
 use std::any::{Any, TypeId};
-use std::borrow::ToOwned;
 use std::collections::HashMap;
 use std::fmt::Debug;
 use std::hash::Hash;
@@ -8,7 +7,7 @@ use std::io::Read;
 use std::path::PathBuf;
 use std::sync::Arc;
 
-use failure::{Error, Fail};
+use failure::Error;
 
 use asset::{Asset, AssetLoader};
 use store::Store;
@@ -21,11 +20,10 @@ trait AnyStore<I> {
 impl<I, S> AnyStore<I> for (S, Option<S::Reader>)
 where
     S: Store<I>,
-    S::Error: Fail,
+    S::Error: Into<Error>,
 {
     fn fetch(&mut self, id: &I) -> Result<&mut Read, Error> {
-        use failure::ResultExt;
-        let reader = self.0.fetch(id).with_context(|_| format!("Failed to fetch asset from <{}> store", S::KIND))?;
+        let reader = self.0.fetch(id).map_err(|e| e.into().context(format!("Failed to fetch asset from <{}> store", S::KIND)))?;
         self.1 = Some(reader);
         Ok(self.1.as_mut().unwrap())
     }
@@ -37,18 +35,18 @@ where
 
 /// Manages loaders and caches assets.
 /// Should be able to load any asset type.
-pub struct AssetManager<I = PathBuf> {
+pub struct Assets<I = PathBuf> {
     stores: Vec<Box<AnyStore<I> + Send + Sync>>,
     loaders: HashMap<TypeId, Box<Any + Send + Sync>>,
     cache: HashMap<(I, TypeId), Box<Any + Send + Sync>>,
 }
 
-impl<I> Default for AssetManager<I>
+impl<I> Default for Assets<I>
 where
     I: Hash + Eq,
 {
     fn default() -> Self {
-        AssetManager {
+        Assets {
             stores: Default::default(),
             loaders: Default::default(),
             cache: Default::default(),
@@ -56,11 +54,11 @@ where
     }
 }
 
-impl<I> AssetManager<I>
+impl<I> Assets<I>
 where
     I: Debug + Hash + Eq,
 {
-    /// Create new `AssetManager`
+    /// Create new `Assets`
     pub fn new() -> Self {
         Self::default()
     }
@@ -69,7 +67,7 @@ where
     pub fn add_store<S>(&mut self, store: S)
     where
         S: Store<I> + Send + Sync + 'static,
-        S::Error: Fail,
+        S::Error: Into<Error>,
         S::Reader: Send + Sync + 'static,
     {
         self.stores.push(Box::new((store, None)));
@@ -79,7 +77,7 @@ where
     pub fn with_store<S>(mut self, store: S) -> Self
     where
         S: Store<I> + Send + Sync + 'static,
-        S::Error: Fail,
+        S::Error: Into<Error>,
         S::Reader: Send + Sync + 'static,
     {
         self.add_store(store);
@@ -105,14 +103,14 @@ where
 
     /// Load asset from managed store.
     /// Or get cached asset.
-    pub fn load_with<A, F, L>(&mut self, id: I, format: F, loader: &mut A::Loader) -> Result<Arc<A>, Error>
+    pub fn load_with<A, F>(&mut self, id: I, format: F, loader: &mut A::Loader) -> Result<Arc<A>, Error>
     where
         A: Asset + 'static,
         A::Loader: AssetLoader<A, F>,
-        <A::Loader as AssetLoader<A, F>>::Error: Fail,
+        <A::Loader as AssetLoader<A, F>>::Error: Into<Error>,
     {
         use std::collections::hash_map::Entry;
-        use failure::{err_msg, ResultExt};
+        use failure::err_msg;
 
         let id = id.into();
 
@@ -122,7 +120,7 @@ where
                 for store in &mut self.stores {
                     match store.fetch(&vacant.key().0) {
                         Ok(reader) => {
-                            let asset = loader.load(format, reader).with_context(|_| format!("Failed to load asset <{}>", A::KIND))?;
+                            let asset = loader.load(format, reader).map_err(|e| e.into().context(format!("Failed to load asset <{}>", A::KIND)))?;
                             let asset = Arc::new(asset);
                             vacant.insert(Box::new(asset.clone()));
                             return Ok(asset);
@@ -150,10 +148,10 @@ where
     where
         A: Asset + 'static,
         A::Loader: AssetLoader<A, F>,
-        <A::Loader as AssetLoader<A, F>>::Error: Fail,
+        <A::Loader as AssetLoader<A, F>>::Error: Into<Error>,
     {
         use std::collections::hash_map::Entry;
-        use failure::{err_msg, ResultExt};
+        use failure::err_msg;
 
         let id = id.into();
 
@@ -167,7 +165,7 @@ where
                 for store in &mut self.stores {
                     match store.fetch(&vacant.key().0) {
                         Ok(reader) => {
-                            let asset: A = loader.load(format, reader).with_context(|_| format!("Failed to load asset <{}>", A::KIND))?;
+                            let asset: A = loader.load(format, reader).map_err(|e| e.into().context(format!("Failed to load asset <{}>", A::KIND)))?;
                             let asset = Arc::new(asset);
                             vacant.insert(Box::new(Arc::clone(&asset)));
                             return Ok(asset);

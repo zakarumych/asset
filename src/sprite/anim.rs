@@ -1,5 +1,6 @@
 
 use std::collections::HashMap;
+use std::fmt::Debug;
 use std::hash::Hash;
 use std::ops::Range;
 use std::time::Duration;
@@ -14,6 +15,8 @@ use sprite::{Rect, SpriteSheet};
 
 #[cfg_attr(feature="serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature="serde", serde(bound(serialize = "I: Serialize + Eq + Hash", deserialize = "I: DeserializeOwned + Eq + Hash")))]
+#[derive(Derivative)]
+#[derivative(Clone, Debug(bound = "I: Eq + Hash + Debug"), PartialEq(bound = "I: Eq + Hash"), Eq(bound = "I: Eq + Hash"))]
 pub struct AnimationSet<I> {
     /// Maps name to frames range.
     animations: HashMap<I, Range<u32>>,
@@ -59,6 +62,7 @@ where
 }
 
 #[cfg_attr(feature="serde", derive(Serialize, Deserialize))]
+#[derive(Clone, Debug, Hash, PartialEq, Eq)]
 struct Animation<I> {
     elapsed: u64,
     range: Range<u32>,
@@ -67,6 +71,7 @@ struct Animation<I> {
 }
 
 #[cfg_attr(feature="serde", derive(Serialize, Deserialize))]
+#[derive(Clone, Debug, Hash, PartialEq, Eq)]
 enum Current<I> {
     Animated(Animation<I>),
     Still(u32),
@@ -74,6 +79,8 @@ enum Current<I> {
 
 #[cfg_attr(feature="serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature="serde", serde(bound(serialize = "I: Serialize + Eq + Hash", deserialize = "I: DeserializeOwned + Eq + Hash")))]
+#[derive(Derivative)]
+#[derivative(Clone, Debug(bound = "I: Eq + Hash + Debug"), PartialEq(bound = "I: Eq + Hash"), Eq(bound = "I: Eq + Hash"))]
 pub struct AnimationController<I> {
     set: AnimationSet<I>,
     layout: SpriteSheet,

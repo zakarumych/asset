@@ -1,4 +1,7 @@
 
+#[macro_use]
+extern crate derivative;
+
 extern crate failure;
 
 #[cfg(feature="futures")]

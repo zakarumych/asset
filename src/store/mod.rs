@@ -4,6 +4,8 @@ mod async;
 #[cfg(feature="fs")]
 mod fs;
 
+use std::path::PathBuf;
+
 #[cfg(feature="fs")]
 pub use self::fs::FsStore;
 
@@ -18,7 +20,7 @@ use std::io::Read;
 /// # Parameters
 /// `I` - identifier type the `Store` uses to identify assets.
 /// 
-pub trait Store<I: ?Sized> {
+pub trait Store<I: ?Sized = PathBuf> {
     /// Possible error type.
     type Error;
 

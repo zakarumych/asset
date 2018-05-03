@@ -18,6 +18,7 @@ fs = []
 sprite = []
 
 [dependencies]
+derivative = "1.0"
 futures = { version = "0.2", optional = true }
 gfx-hal = { git = "https://github.com/gfx-rs/gfx", rev = "a3475a75c", optional = true }
 gfx-mesh = { git = "https://github.com/omni-viral/gfx-mesh", rev = "e05bade", optional = true }
