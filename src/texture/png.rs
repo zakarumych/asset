@@ -25,6 +25,7 @@ where
     where
         R: Read,
     {
+        debug!("Loading texture from png");
         let PngFormat = format;
 
         let (info, mut reader) = png::Decoder::new(reader).read_info()?;

@@ -7,6 +7,7 @@ use std::path::{Path, PathBuf};
 use store::Store;
 
 /// `FsStore` fetches data from files in local filesystem.
+#[derive(Debug)]
 pub struct FsStore {
     roots: Vec<PathBuf>,
     ignore_ext: bool,

@@ -8,7 +8,17 @@ use ron;
 #[cfg(feature="serde")]
 use serde::de::{DeserializeOwned};
 
+#[cfg(feature="gfx-render")]
+use hal::Backend;
+
+#[cfg(feature="gfx-render")]
+use render::Factory;
+
 use std::io::Read;
+
+pub trait AssetLoaderKind {
+    const KIND: &'static str;
+}
 
 /// `AssetLoader` loads assets from raw data.
 /// Some loaders can support several asset types and data formats. Such loaders implement `AssetLoader` for all supported asset-format pairs.
@@ -18,7 +28,7 @@ use std::io::Read;
 /// `A` - asset type produced by loader.
 /// `F` - format type. Holds additional information required to decode asset from load data.
 /// 
-pub trait AssetLoader<A, F> {
+pub trait AssetLoader<A, F>: AssetLoaderKind {
     /// Possible error type.
     type Error;
 
@@ -52,6 +62,13 @@ pub trait Asset: Send + Sync + Sized + 'static {
     }
 }
 
+#[cfg(feature="gfx-render")]
+impl<B> AssetLoaderKind for Factory<B>
+where
+    B: Backend,
+{
+    const KIND: &'static str = "Factory";
+}
 
 #[cfg(feature="serde")]
 pub struct SerdeLoader;
@@ -66,6 +83,10 @@ pub trait SerdeFormat {
         R: Read;
 }
 
+#[cfg(feature="serde")]
+impl AssetLoaderKind for SerdeLoader {
+    const KIND: &'static str = "SerdeLoader";
+}
 
 #[cfg(feature="serde")]
 impl<A, F> AssetLoader<A, F> for SerdeLoader
@@ -79,6 +100,7 @@ where
     where
         R: Read,
     {
+        debug!("Loading asset with serde");
         format.from_reader(reader)
     }
 }

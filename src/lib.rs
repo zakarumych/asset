@@ -1,8 +1,9 @@
 
 #[macro_use]
 extern crate derivative;
-
 extern crate failure;
+#[macro_use]
+extern crate log;
 
 #[cfg(feature="futures")]
 extern crate futures;

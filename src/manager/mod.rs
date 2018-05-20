@@ -9,7 +9,7 @@ use std::sync::Arc;
 
 use failure::Error;
 
-use asset::{Asset, AssetLoader};
+use asset::{Asset, AssetLoader, AssetLoaderKind};
 use store::Store;
 
 trait AnyStore<I> {
@@ -71,6 +71,7 @@ where
         S::Reader: Send + Sync + 'static,
     {
         self.stores.push(Box::new((store, None)));
+        info!("Store {} registered", S::KIND);
     }
 
     /// Add store to the manager.
@@ -87,15 +88,16 @@ where
     /// Register asset loader.
     pub fn add_loader<L>(&mut self, loader: L)
     where
-        L: Any + Send + Sync,
+        L: AssetLoaderKind + Any + Send + Sync,
     {
         self.loaders.insert(TypeId::of::<L>(), Box::new(loader));
+        info!("Loader {} registered", L::KIND);
     }
 
     /// Register asset loader.
     pub fn with_loader<L>(mut self, loader: L) -> Self
     where
-        L: Any + Send + Sync,
+        L: AssetLoaderKind + Any + Send + Sync,
     {
         self.add_loader(loader);
         self
@@ -114,6 +116,7 @@ where
 
         let id = id.into();
 
+        debug!("Load asset {:?} of kind {}", id, A::KIND);
         match self.cache.entry((id, TypeId::of::<A>())) {
             Entry::Vacant(vacant) => {
                 let mut errors = Vec::new();
