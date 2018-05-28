@@ -13,6 +13,7 @@ use hal::{Backend, Device};
 use hal::format::{Aspects, Format, Swizzle};
 use hal::image::{Tiling, Kind, Usage, Access, StorageFlags, Layout, SubresourceLayers, SubresourceRange, Offset, ViewKind};
 use hal::memory::{Pod, Properties, cast_slice};
+use hal::queue::QueueFamilyId;
 
 use render::{Factory, Image};
 
@@ -131,7 +132,7 @@ impl<'a> TextureBuilder<'a> {
         self
     }
 
-    pub fn build<B>(&self, factory: &mut Factory<B>) -> Result<Texture<B>, Error>
+    pub fn build<B>(&self, family: QueueFamilyId, factory: &mut Factory<B>) -> Result<Texture<B>, Error>
     where
         B: Backend,
     {
@@ -167,6 +168,7 @@ impl<'a> TextureBuilder<'a> {
 
         factory.upload_image(
             &mut image,
+            family,
             Layout::ShaderReadOnlyOptimal,
             Access::SHADER_READ,
             SubresourceLayers {

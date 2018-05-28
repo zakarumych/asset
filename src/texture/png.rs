@@ -5,6 +5,7 @@ use failure::Error;
 use hal::Backend;
 use hal::format::Format;
 use hal::image::Kind;
+use hal::queue::QueueFamilyId;
 
 use png;
 
@@ -13,7 +14,7 @@ use render::Factory;
 use asset::AssetLoader;
 use texture::Texture;
 
-pub struct PngFormat;
+pub struct PngFormat(QueueFamilyId);
 
 impl<B> AssetLoader<Texture<B>, PngFormat> for Factory<B>
 where

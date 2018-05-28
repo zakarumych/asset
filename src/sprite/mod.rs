@@ -1,5 +1,7 @@
 
-pub mod anim;
+mod anim;
+
+pub use self::anim::*;
 
 /// Sprite sheets are multiple sprites embedded into single texture object commonly aligned into grid.
 /// They are primarily used in for sprite animations

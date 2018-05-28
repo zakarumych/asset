@@ -1,5 +1,8 @@
 #[cfg(feature="obj")]
-pub mod obj;
+mod obj;
+
+#[cfg(feature="obj")]
+pub use self::obj::*;
 
 use hal::Backend;
 use render::Factory;

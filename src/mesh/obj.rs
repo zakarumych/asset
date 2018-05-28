@@ -2,14 +2,14 @@
 use std::io::{BufReader, Read};
 
 use failure::Error;
-use hal::Backend;
+use hal::{Backend, queue::QueueFamilyId};
 use gfx_mesh::{Mesh, MeshBuilder, Position, Normal, TexCoord};
 use render::Factory;
 use obj::{Obj, SimplePolygon};
 
 use asset::AssetLoader;
 
-pub struct ObjFormat;
+pub struct ObjFormat(QueueFamilyId);
 
 impl<B> AssetLoader<Mesh<B>, ObjFormat> for Factory<B>
 where
@@ -17,24 +17,22 @@ where
 {
     type Error = Error;
 
-    fn load<R>(&mut self, format: ObjFormat, reader: R) -> Result<Mesh<B>, Error>
+    fn load<R>(&mut self, ObjFormat(family): ObjFormat, reader: R) -> Result<Mesh<B>, Error>
     where
         R: Read,
     {
-        let ObjFormat = format;
-
         let obj: Obj<SimplePolygon> = Obj::load_buf(&mut BufReader::new(reader))?;
         let mut indices = Vec::new();
         let positions = obj.position.iter().cloned().map(Position).collect::<Vec<_>>();
-        let mut texcoords = None;
+        let mut coords = None;
         let mut normals = None;
 
         {
             let mut texture = |index, value| {
-                let texcoords = texcoords.get_or_insert_with(|| Vec::new());
-                let len = texcoords.len();
-                texcoords.extend((len .. index + 1).map(|_| value));
-                texcoords[index] = value;
+                let coords = coords.get_or_insert_with(|| Vec::new());
+                let len = coords.len();
+                coords.extend((len .. index + 1).map(|_| value));
+                coords[index] = value;
             };
 
             let mut normal = |index, value| {
@@ -90,11 +88,11 @@ where
         if let Some(normals) = normals {
             builder.add_vertices(normals);
         };
-        if let Some(texcoords) = texcoords {
-            builder.add_vertices(texcoords);
+        if let Some(coords) = coords {
+            builder.add_vertices(coords);
         };
 
-        builder.build(self)
+        builder.build(family, self)
     }
 }
 
