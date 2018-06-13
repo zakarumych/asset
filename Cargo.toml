@@ -13,16 +13,17 @@ documentation = "https://docs.rs/crate/asset/0.1.0/asset"
 default = []
 
 mesh = ["gfx-hal", "gfx-render", "gfx-mesh"]
-texture = ["gfx-hal", "gfx-render"]
+texture = ["gfx-hal", "gfx-render", "gfx-texture"]
 fs = []
 sprite = []
 
 [dependencies]
 derivative = "1.0"
 futures = { version = "0.2", optional = true }
-gfx-hal = { git = "https://github.com/gfx-rs/gfx", rev = "1e959ace6", optional = true }
-gfx-mesh = { git = "https://github.com/omni-viral/gfx-mesh", rev = "639412a", optional = true }
-gfx-render = { git = "https://github.com/gfx-rs/gfx-render", rev = "32fc70a", optional = true }
+gfx-hal = { git = "https://github.com/gfx-rs/gfx", rev = "63826ab79", optional = true }
+gfx-mesh = { git = "https://github.com/omni-viral/gfx-mesh", rev = "f7d6012", optional = true }
+gfx-texture = { git = "https://github.com/omni-viral/gfx-texture", rev = "67a3ff2", optional = true }
+gfx-render = { git = "https://github.com/gfx-rs/gfx-render", rev = "b6452b7", optional = true }
 log = "0.4"
 obj = { version = "0.8", optional = true }
 png = { version = "0.11", optional = true }

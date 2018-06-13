@@ -14,6 +14,9 @@ extern crate gfx_hal as hal;
 #[cfg(feature="gfx-mesh")]
 extern crate gfx_mesh;
 
+#[cfg(feature="gfx-texture")]
+extern crate gfx_texture;
+
 #[cfg(feature="gfx-render")]
 extern crate gfx_render as render;
 

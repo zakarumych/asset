@@ -27,7 +27,7 @@ where
         R: Read,
     {
         debug!("Loading texture from png");
-        let PngFormat = format;
+        let PngFormat(qid) = format;
 
         let (info, mut reader) = png::Decoder::new(reader).read_info()?;
 
@@ -49,7 +49,7 @@ where
                 (line_bytes / pixel_bytes) as u32
             })
             .with_data(data)
-            .build(self)
+            .build(qid, self)
     }
 }
 
