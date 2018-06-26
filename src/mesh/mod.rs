@@ -1,7 +1,7 @@
-#[cfg(feature="obj")]
+#[cfg(feature = "obj")]
 mod obj;
 
-#[cfg(feature="obj")]
+#[cfg(feature = "obj")]
 pub use self::obj::*;
 
 use hal::Backend;

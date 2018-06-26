@@ -1,4 +1,3 @@
-
 mod anim;
 
 pub use self::anim::*;
@@ -8,7 +7,7 @@ pub use self::anim::*;
 /// where individual sprites represent frames of animations. Typically row per animation.
 /// The second common use is for tile sets where individual sprites represent variety of tiles in set.
 #[derive(Clone, Copy, Debug, Hash, PartialEq, Eq)]
-#[cfg_attr(feature="serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct SpriteSheet {
     /// Columns count of the grid. Number of frames in one row.
     pub columns: u32,
@@ -38,8 +37,6 @@ impl SpriteSheet {
         let x = w * column as f32;
         let h = 1f32 / self.rows as f32;
         let y = h * row as f32;
-        Rect {
-            x, y, w, h,
-        }
+        Rect { x, y, w, h }
     }
 }

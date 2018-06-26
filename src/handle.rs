@@ -1,9 +1,8 @@
-
 use std::cell::UnsafeCell;
 use std::mem::ManuallyDrop;
 use std::ops::Deref;
-use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
 
 struct Inner<T> {
     value: ManuallyDrop<UnsafeCell<T>>,
@@ -63,10 +62,9 @@ impl<T> Slot<T> {
     /// Create new empty slot.
     pub fn new() -> Self {
         Slot {
-            inner: Arc::new(Inner::new())
+            inner: Arc::new(Inner::new()),
         }
     }
-
 
     /// Store value.
     /// Returns `Handle` that can be used to get reference to stored value.
@@ -74,15 +72,13 @@ impl<T> Slot<T> {
         unsafe {
             self.inner.store(value);
         }
-        Handle {
-            inner: self.inner,
-        }
+        Handle { inner: self.inner }
     }
 
     /// Get token for the value that will be stored.
     pub fn token(&self) -> Token<T> {
         Token {
-            inner: Arc::clone(&self.inner)
+            inner: Arc::clone(&self.inner),
         }
     }
 }
@@ -100,7 +96,7 @@ impl<T> Token<T> {
     pub fn handle(&self) -> Option<Handle<T>> {
         if self.inner.ready() {
             Some(Handle {
-                inner: Arc::clone(&self.inner)
+                inner: Arc::clone(&self.inner),
             })
         } else {
             None
@@ -127,8 +123,6 @@ impl<T> Handle<T> {
 impl<T> Deref for Handle<T> {
     type Target = T;
     fn deref(&self) -> &T {
-        unsafe {
-            self.inner.get()
-        }
+        unsafe { self.inner.get() }
     }
 }

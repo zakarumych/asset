@@ -1,11 +1,10 @@
-
 use std::io::{BufReader, Read};
 
 use failure::Error;
-use hal::{Backend, queue::QueueFamilyId};
-use gfx_mesh::{Mesh, MeshBuilder, Position, Normal, TexCoord};
-use render::Factory;
+use gfx_mesh::{Mesh, MeshBuilder, Normal, Position, TexCoord};
+use hal::{queue::QueueFamilyId, Backend};
 use obj::{Obj, SimplePolygon};
+use render::Factory;
 
 use asset::AssetLoader;
 
@@ -23,7 +22,12 @@ where
     {
         let obj: Obj<SimplePolygon> = Obj::load_buf(&mut BufReader::new(reader))?;
         let mut indices = Vec::new();
-        let positions = obj.position.iter().cloned().map(Position).collect::<Vec<_>>();
+        let positions = obj
+            .position
+            .iter()
+            .cloned()
+            .map(Position)
+            .collect::<Vec<_>>();
         let mut coords = None;
         let mut normals = None;
 
@@ -31,14 +35,14 @@ where
             let mut texture = |index, value| {
                 let coords = coords.get_or_insert_with(|| Vec::new());
                 let len = coords.len();
-                coords.extend((len .. index + 1).map(|_| value));
+                coords.extend((len..index + 1).map(|_| value));
                 coords[index] = value;
             };
 
             let mut normal = |index, value| {
                 let normals = normals.get_or_insert_with(|| Vec::new());
                 let len = normals.len();
-                normals.extend((len .. index + 1).map(|_| value));
+                normals.extend((len..index + 1).map(|_| value));
                 normals[index] = value;
             };
 
@@ -53,9 +57,7 @@ where
                         texture(i[1], TexCoord(obj.texture[t1]));
                         texture(i[2], TexCoord(obj.texture[t2]));
                     }
-                    _ => {
-                        unimplemented!()
-                    }
+                    _ => unimplemented!(),
                 }
 
                 match (n[0], n[1], n[2]) {
@@ -64,17 +66,19 @@ where
                         normal(i[1], Normal(obj.normal[n1]));
                         normal(i[2], Normal(obj.normal[n2]));
                     }
-                    _ => {
-                        unimplemented!()
-                    }
+                    _ => unimplemented!(),
                 }
             };
 
             for object in &obj.objects {
                 for group in &object.groups {
                     for poly in &group.polys {
-                        for c in 2 .. poly.len() {
-                            triangle([poly[0].0, poly[c-1].0, poly[c].0], [poly[0].1, poly[c-1].1, poly[c].1], [poly[0].2, poly[c-1].2, poly[c].2]);
+                        for c in 2..poly.len() {
+                            triangle(
+                                [poly[0].0, poly[c - 1].0, poly[c].0],
+                                [poly[0].1, poly[c - 1].1, poly[c].1],
+                                [poly[0].2, poly[c - 1].2, poly[c].2],
+                            );
                         }
                     }
                 }
@@ -84,7 +88,7 @@ where
         let mut builder = MeshBuilder::new()
             .with_indices(indices)
             .with_vertices(positions);
-        
+
         if let Some(normals) = normals {
             builder.add_vertices(normals);
         };
@@ -95,4 +99,3 @@ where
         builder.build(family, self)
     }
 }
-

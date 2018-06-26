@@ -1,7 +1,6 @@
-
-use std::io::{Error, Read};
 use asset::{Asset, AssetLoader};
 use ron;
+use std::io::{Error, Read};
 
 #[derive(Debug, PartialEq, Eq, Deserialize)]
 struct Foo {
@@ -16,7 +15,6 @@ impl Asset for Foo {
 struct FooLoader;
 
 impl AssetLoader<Foo, ()> for FooLoader {
-
     type Error = ron::de::Error;
 
     fn load<R>(&mut self, _: (), reader: R) -> Result<Foo, ron::de::Error>
@@ -76,19 +74,26 @@ impl Asset for String {
 
 #[test]
 fn asset_loader() {
-    assert_eq!(FooLoader.load((), &b"Foo(foo: 42)"[..]), Ok(Foo { foo: 42, }));
+    assert_eq!(
+        FooLoader.load((), &b"Foo(foo: 42)"[..]),
+        Ok(Foo { foo: 42 })
+    );
 }
 
-#[cfg(feature="fs")]
+#[cfg(feature = "fs")]
 #[test]
 fn filesystem_store() {
     use store::{FsStore, Store};
     let mut fs = FsStore::new().with_path(env!("CARGO_MANIFEST_DIR"));
-    assert_eq!(String::from(LICENSE_MIT), fs.fetch("LICENSE-MIT").and_then(|r| StringLoader.load((), r)).unwrap());
+    assert_eq!(
+        String::from(LICENSE_MIT),
+        fs.fetch("LICENSE-MIT")
+            .and_then(|r| StringLoader.load((), r))
+            .unwrap()
+    );
 }
 
-
-#[cfg(feature="fs")]
+#[cfg(feature = "fs")]
 #[test]
 fn asset_manager() {
     use store::FsStore;
@@ -98,7 +103,10 @@ fn asset_manager() {
         .with_store(FsStore::new().with_path(env!("CARGO_MANIFEST_DIR")))
         .with_loader(StringLoader);
 
-    assert_eq!(&String::from(LICENSE_MIT), &*manager.load::<String, _>("LICENSE-MIT", ()).unwrap());
+    assert_eq!(
+        &String::from(LICENSE_MIT),
+        &*manager.load::<String, _>("LICENSE-MIT", ()).unwrap()
+    );
 
     fn send_sync_static<T: Send + Sync + 'static>(_: &T) {}
     send_sync_static(&manager);

@@ -1,4 +1,3 @@
-
 use std::any::{Any, TypeId};
 use std::collections::HashMap;
 use std::fmt::Debug;
@@ -23,7 +22,10 @@ where
     S::Error: Into<Error>,
 {
     fn fetch(&mut self, id: &I) -> Result<&mut Read, Error> {
-        let reader = self.0.fetch(id).map_err(|e| e.into().context(format!("Failed to fetch asset from <{}> store", S::KIND)))?;
+        let reader = self.0.fetch(id).map_err(|e| {
+            e.into()
+                .context(format!("Failed to fetch asset from <{}> store", S::KIND))
+        })?;
         self.1 = Some(reader);
         Ok(self.1.as_mut().unwrap())
     }
@@ -105,14 +107,19 @@ where
 
     /// Load asset from managed store.
     /// Or get cached asset.
-    pub fn load_with<A, F>(&mut self, id: I, format: F, loader: &mut A::Loader) -> Result<Arc<A>, Error>
+    pub fn load_with<A, F>(
+        &mut self,
+        id: I,
+        format: F,
+        loader: &mut A::Loader,
+    ) -> Result<Arc<A>, Error>
     where
         A: Asset + 'static,
         A::Loader: AssetLoader<A, F>,
         <A::Loader as AssetLoader<A, F>>::Error: Into<Error>,
     {
-        use std::collections::hash_map::Entry;
         use failure::err_msg;
+        use std::collections::hash_map::Entry;
 
         let id = id.into();
 
@@ -123,7 +130,10 @@ where
                 for store in &mut self.stores {
                     match store.fetch(&vacant.key().0) {
                         Ok(reader) => {
-                            let asset = loader.load(format, reader).map_err(|e| e.into().context(format!("Failed to load asset <{}>", A::KIND)))?;
+                            let asset = loader.load(format, reader).map_err(|e| {
+                                e.into()
+                                    .context(format!("Failed to load asset <{}>", A::KIND))
+                            })?;
                             let asset = Arc::new(asset);
                             vacant.insert(Box::new(asset.clone()));
                             return Ok(asset);
@@ -134,12 +144,14 @@ where
                     }
                 }
 
-                Err(errors.into_iter().fold(err_msg(format!("Failed to find asset <{}>", A::KIND)), |a, e| {
-                    e.context(a).into()
-                }))
+                Err(errors.into_iter().fold(
+                    err_msg(format!("Failed to find asset <{}>", A::KIND)),
+                    |a, e| e.context(a).into(),
+                ))
             }
             Entry::Occupied(occupied) => {
-                let asset: &Arc<A> = Any::downcast_ref::<Arc<A>>(&**occupied.get()).expect("Cached assets are mapped by `TypeId`");
+                let asset: &Arc<A> = Any::downcast_ref::<Arc<A>>(&**occupied.get())
+                    .expect("Cached assets are mapped by `TypeId`");
                 Ok(Arc::clone(asset))
             }
         }
@@ -153,22 +165,28 @@ where
         A::Loader: AssetLoader<A, F>,
         <A::Loader as AssetLoader<A, F>>::Error: Into<Error>,
     {
-        use std::collections::hash_map::Entry;
         use failure::err_msg;
+        use std::collections::hash_map::Entry;
 
         let id = id.into();
 
         match self.cache.entry((id, TypeId::of::<A>())) {
             Entry::Vacant(vacant) => {
-                let loader = self.loaders.get_mut(&TypeId::of::<A::Loader>())
+                let loader = self
+                    .loaders
+                    .get_mut(&TypeId::of::<A::Loader>())
                     .ok_or_else(|| err_msg(format!("Loader for <{}> is not registered", A::KIND)))?;
-                let loader = Any::downcast_mut::<A::Loader>(&mut **loader).expect("Loaders are mapped by `TypeId`");
+                let loader = Any::downcast_mut::<A::Loader>(&mut **loader)
+                    .expect("Loaders are mapped by `TypeId`");
 
                 let mut errors = Vec::new();
                 for store in &mut self.stores {
                     match store.fetch(&vacant.key().0) {
                         Ok(reader) => {
-                            let asset: A = loader.load(format, reader).map_err(|e| e.into().context(format!("Failed to load asset <{}>", A::KIND)))?;
+                            let asset: A = loader.load(format, reader).map_err(|e| {
+                                e.into()
+                                    .context(format!("Failed to load asset <{}>", A::KIND))
+                            })?;
                             let asset = Arc::new(asset);
                             vacant.insert(Box::new(Arc::clone(&asset)));
                             return Ok(asset);
@@ -179,12 +197,14 @@ where
                     }
                 }
 
-                Err(errors.into_iter().fold(err_msg(format!("Failed to find asset <{}>", A::KIND)), |a, e| {
-                    e.context(a).into()
-                }))
+                Err(errors.into_iter().fold(
+                    err_msg(format!("Failed to find asset <{}>", A::KIND)),
+                    |a, e| e.context(a).into(),
+                ))
             }
             Entry::Occupied(occupied) => {
-                let asset: &Arc<A> = Any::downcast_ref::<Arc<A>>(&**occupied.get()).expect("Cached assets are mapped by `TypeId`");
+                let asset: &Arc<A> = Any::downcast_ref::<Arc<A>>(&**occupied.get())
+                    .expect("Cached assets are mapped by `TypeId`");
                 Ok(Arc::clone(asset))
             }
         }

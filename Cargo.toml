@@ -20,10 +20,10 @@ sprite = []
 [dependencies]
 derivative = "1.0"
 futures = { version = "0.2", optional = true }
-gfx-hal = { git = "https://github.com/gfx-rs/gfx", rev = "63826ab79", optional = true }
-gfx-mesh = { git = "https://github.com/omni-viral/gfx-mesh", rev = "f7d6012", optional = true }
-gfx-texture = { git = "https://github.com/omni-viral/gfx-texture", rev = "67a3ff2", optional = true }
-gfx-render = { git = "https://github.com/gfx-rs/gfx-render", rev = "b6452b7", optional = true }
+gfx-hal = { version = "0.1", git = "https://github.com/gfx-rs/gfx", rev = "6cb2a800b", optional = true }
+gfx-mesh = { version = "0.1", git = "https://github.com/omni-viral/gfx-mesh", rev = "d648774", optional = true }
+gfx-texture = { version = "0.1", git = "https://github.com/omni-viral/gfx-texture", rev = "7aa98ee", optional = true }
+gfx-render = { version = "0.1", git = "https://github.com/gfx-rs/gfx-render", rev = "8e475a3", optional = true }
 log = "0.4"
 obj = { version = "0.8", optional = true }
 png = { version = "0.11", optional = true }

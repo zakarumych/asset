@@ -1,7 +1,5 @@
-
-
-use std::io;
 use std::fs::File;
+use std::io;
 use std::path::{Path, PathBuf};
 
 use store::Store;
@@ -56,7 +54,9 @@ impl FsStore {
         P: AsRef<Path>,
     {
         let path = path.as_ref();
-        let stem = path.file_stem().expect("Target must be file, not directory");
+        let stem = path
+            .file_stem()
+            .expect("Target must be file, not directory");
 
         for root in &self.roots {
             let mut path = root.join(path);
@@ -67,7 +67,7 @@ impl FsStore {
                 Ok(file) => return Ok(file),
                 Err(err) => {
                     if err.kind() != io::ErrorKind::NotFound {
-                        return Err(err)
+                        return Err(err);
                     }
                 }
             }

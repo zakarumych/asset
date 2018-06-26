@@ -1,4 +1,3 @@
-
 use futures::io::{AllowStdIo, AsyncRead};
 
 use store::Store;

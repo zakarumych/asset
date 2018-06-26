@@ -1,11 +1,10 @@
-
 use std::io::Read;
 
 use failure::Error;
-use hal::Backend;
 use hal::format::Format;
 use hal::image::Kind;
 use hal::queue::QueueFamilyId;
+use hal::Backend;
 
 use png;
 
@@ -58,14 +57,14 @@ fn format_from_info(color_type: png::ColorType, bit_depth: png::BitDepth) -> For
         png::ColorType::RGB => match bit_depth {
             png::BitDepth::Eight => Format::Rgb8Unorm,
             png::BitDepth::Sixteen => Format::Rgb16Unorm,
-            _ => unimplemented!()
-        }
+            _ => unimplemented!(),
+        },
         png::ColorType::RGBA => match bit_depth {
             png::BitDepth::Eight => Format::Rgba8Unorm,
             png::BitDepth::Sixteen => Format::Rgba16Unorm,
-            _ => unimplemented!()
-        }
-        _ => unimplemented!()
+            _ => unimplemented!(),
+        },
+        _ => unimplemented!(),
     }
 }
 
